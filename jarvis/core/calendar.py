@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 
 def _format_event(event: dict) -> str:
@@ -21,7 +21,7 @@ def create_event(service, parsed: dict) -> str:
     end = parsed.get("end")
     if start:
         body["start"] = {"dateTime": start, "timeZone": "UTC"}
-        body["end"] = {"dateTime": end or _add_one_hour(start), "timeZone": "UTC"}
+        body["end"] = {"dateTime": end or (datetime.fromisoformat(start) + timedelta(hours=1)).isoformat(), "timeZone": "UTC"}
 
     if parsed.get("rrule"):
         body["recurrence"] = [f"RRULE:{parsed['rrule']}"]
@@ -85,8 +85,3 @@ def list_events(service, time_min: datetime, time_max: datetime) -> str:
     if not events:
         return "No events found."
     return "\n".join(f"  {i+1}. {_format_event(e)}" for i, e in enumerate(events))
-
-
-def _add_one_hour(dt_str: str) -> str:
-    dt = datetime.fromisoformat(dt_str)
-    return (dt + timedelta(hours=1)).isoformat()
