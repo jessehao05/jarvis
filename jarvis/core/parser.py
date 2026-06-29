@@ -2,7 +2,8 @@ import json
 import os
 from datetime import datetime
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -48,15 +49,15 @@ def parse(text: str, now: datetime) -> dict:
     if not api_key:
         raise EnvironmentError("GEMINI_API_KEY not set. Add it to your .env file.")
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-2.0-flash")
+    client = genai.Client(api_key=api_key)
 
     tz_name = now.strftime("%Z") or "UTC"
     prompt = _SYSTEM_PROMPT.format(now=now.isoformat(), tz=tz_name)
 
-    response = model.generate_content(
-        f"{prompt}\n\nUser input: {text}",
-        generation_config=genai.types.GenerationConfig(temperature=0),
+    response = client.models.generate_content(
+        model="gemini-2.5-flash",
+        contents=f"{prompt}\n\nUser input: {text}",
+        config=types.GenerateContentConfig(temperature=0),
     )
 
     raw = response.text.strip()
