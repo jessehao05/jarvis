@@ -89,6 +89,39 @@ def delete(text):
     click.echo(delete_event(service, event["id"]))
 
 
+@cli.command()
+def test():
+    """Smoke test: verify Gemini parsing and Google Calendar connectivity."""
+    now = datetime.now(tz=timezone.utc).astimezone()
+
+    click.echo("Gemini parser... ", nl=False)
+    try:
+        result = parse("Meeting tomorrow at 2pm", now)
+        if not result.get("summary") and not result.get("start"):
+            raise ValueError("empty parse result")
+        click.echo("OK")
+    except Exception as e:
+        click.echo(f"FAIL ({e})")
+        return
+
+    click.echo("Google Calendar... ", nl=False)
+    try:
+        service = get_calendar_service()
+        time_max = now + timedelta(days=1)
+        service.events().list(
+            calendarId="primary",
+            timeMin=now.isoformat(),
+            timeMax=time_max.isoformat(),
+            maxResults=1,
+        ).execute()
+        click.echo("OK")
+    except Exception as e:
+        click.echo(f"FAIL ({e})")
+        return
+
+    click.echo("All checks passed.")
+
+
 @cli.command(name="list")
 @click.argument("period", default="today", type=click.Choice(["today", "week"]))
 def list_cmd(period):
