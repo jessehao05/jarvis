@@ -6,12 +6,13 @@ A CLI tool for managing Google Calendar using natural language. Commands like `j
 
 ```
 jarvis/
-├── jarvis/
-│   ├── cli.py          # Click commands (add, edit, delete, list, test)
-│   └── core/
-│       ├── auth.py     # Google OAuth flow and service construction
-│       ├── calendar.py # Google Calendar API calls
-│       └── parser.py   # Gemini prompt and JSON parsing
+├── src/
+│   └── jarvis/
+│       ├── cli.py          # Click commands (add, edit, delete, list, test)
+│       └── core/
+│           ├── auth.py     # Google OAuth flow and service construction
+│           ├── calendar.py # Google Calendar API calls
+│           └── parser.py   # Gemini prompt and JSON parsing
 ├── .env.example
 ├── credentials.json    # (not committed) Google OAuth client secret
 └── pyproject.toml
