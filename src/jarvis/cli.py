@@ -118,9 +118,26 @@ def delete(text):
     click.echo(delete_event(service, event["id"]))
 
 
+@cli.command(name="list")
+@click.argument("period", default="today", type=click.Choice(["today", "week"]))
+def list_cmd(period):
+    """List upcoming events (today or this week)."""
+    now = datetime.now(tz=timezone.utc).astimezone()
+    if period == "today":
+        time_max = now.replace(hour=23, minute=59, second=59)
+    else:
+        time_max = now + timedelta(days=7)
+
+    service = get_calendar_service()
+    click.echo(list_events(service, now, time_max))
+
+
+# ----- testing / misc -----
+
+
 @cli.command()
 def test():
-    """Smoke test: verify Gemini parsing and Google Calendar connectivity."""
+    """Smoke test: verify Gemini parsing and Google Calendar connectivity"""
     now = datetime.now(tz=timezone.utc).astimezone()
 
     click.echo("Gemini parser... ", nl=False)
@@ -151,18 +168,14 @@ def test():
     click.echo("All checks passed.")
 
 
-@cli.command(name="list")
-@click.argument("period", default="today", type=click.Choice(["today", "week"]))
-def list_cmd(period):
-    """List upcoming events (today or this week)."""
-    now = datetime.now(tz=timezone.utc).astimezone()
-    if period == "today":
-        time_max = now.replace(hour=23, minute=59, second=59)
-    else:
-        time_max = now + timedelta(days=7)
+@cli.command()
+@click.pass_context
+def help(ctx):
+    """List all jarvis commands."""
+    click.echo(ctx.parent.get_help())
 
-    service = get_calendar_service()
-    click.echo(list_events(service, now, time_max))
+
+# ----- helpers -----
 
 
 def _find_events(service, hint: str, now: datetime) -> list:
