@@ -9,7 +9,7 @@
 
 ## Command Surface Design
 
-Standard shape for CLI tools: group + subcomamnds, which Jarvis follows. There is one group (`cli()`) and subcommands under the group (`add`/`edit`/`delete`/`list`).
+Standard shape for CLI tools: group + subcomamnds, which Jarvis follows. There is one group (`_JarvisGroup`), which was created for custom error handling, and subcommands under the group (`add`/`edit`/`delete`/`list`).
 
 ## Thin CLI Layer
 
@@ -17,4 +17,5 @@ Standard shape for CLI tools: group + subcomamnds, which Jarvis follows. There i
 
 (test: could you build a web UI on `core/` without touching it? if yes, the boundary is right)
 
-Helpers, `_find_events` / `_pick_event`, are right at the line - `_pick_event` fits in cli.py since it prompts but `_find_events` maybe should be in core. 
+Helpers, `_find_events` / `_pick_event`, are right at the line - `_pick_event` fits in cli.py since it prompts but `_find_events` maybe should be in core.
+

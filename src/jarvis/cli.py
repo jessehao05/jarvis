@@ -1,6 +1,9 @@
+import json
 from datetime import datetime, timedelta, timezone
 
 import click
+from google.auth.exceptions import RefreshError, TransportError
+from googleapiclient.errors import HttpError
 
 from jarvis.core.auth import get_calendar_service
 from jarvis.core.calendar import (
@@ -13,8 +16,44 @@ from jarvis.core.calendar import (
 from jarvis.core.parser import parse
 
 
-@click.group()
-def cli():
+def _humanize(e: Exception) -> str | None:
+    """One-line message for an expected failure, or None if it looks like a bug."""
+    if isinstance(e, RefreshError):
+        return "Your Google authorization has expired. Run 'jarvis auth' to sign in again."
+    if isinstance(e, TransportError):
+        return "Could not reach Google. Check your network connection."
+    if isinstance(e, HttpError):
+        return f"Google rejected the request ({e.status_code}): {e.reason}"
+    if isinstance(e, json.JSONDecodeError):
+        return "Could not understand the response from Gemini. Try rephrasing."
+    if isinstance(e, OSError):
+        return str(e)
+    return None
+
+
+class _JarvisGroup(click.Group):
+    """Renders unhandled exceptions as one-line errors unless --debug is set."""
+
+    def invoke(self, ctx):
+        try:
+            return super().invoke(ctx)
+        except (click.ClickException, click.Abort, click.exceptions.Exit):
+            raise
+        except Exception as e:
+            if ctx.params.get("debug"):
+                raise
+            message = _humanize(e)
+            if message is None:
+                message = (
+                    f"unexpected {type(e).__name__}: {e}\n"
+                    "Run with --debug for the full traceback."
+                )
+            raise click.ClickException(message) from e
+
+
+@click.group(cls=_JarvisGroup)
+@click.option("--debug", is_flag=True, help="Show the full traceback on unexpected errors.")
+def cli(debug):
     pass
 
 
@@ -91,7 +130,7 @@ def test():
             raise ValueError("empty parse result")
         click.echo("OK")
     except Exception as e:
-        click.echo(f"FAIL ({e})")
+        click.echo(f"FAIL ({_humanize(e) or e})")
         raise SystemExit(1)
 
     click.echo("Google Calendar... ", nl=False)
@@ -106,7 +145,7 @@ def test():
         ).execute()
         click.echo("OK")
     except Exception as e:
-        click.echo(f"FAIL ({e})")
+        click.echo(f"FAIL ({_humanize(e) or e})")
         raise SystemExit(1)
 
     click.echo("All checks passed.")
