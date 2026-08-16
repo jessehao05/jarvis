@@ -33,8 +33,7 @@ def add(text):
     parsed = parse(text, now)
 
     if parsed.get("clarification_needed"):
-        click.echo(f"Clarification needed: {parsed['clarification_needed']}")
-        return
+        raise click.ClickException(f"Clarification needed: {parsed['clarification_needed']}")
 
     service = get_calendar_service()
     click.echo(create_event(service, parsed))
@@ -48,21 +47,16 @@ def edit(text):
     parsed = parse(text, now)
 
     if parsed.get("clarification_needed"):
-        click.echo(f"Clarification needed: {parsed['clarification_needed']}")
-        return
+        raise click.ClickException(f"Clarification needed: {parsed['clarification_needed']}")
 
     service = get_calendar_service()
     hint = parsed.get("search_hint") or parsed.get("summary") or text
     events = _find_events(service, hint, now)
 
     if not events:
-        click.echo("No matching events found.")
-        return
+        raise click.ClickException("No matching events found.")
 
     event = _pick_event(events)
-    if event is None:
-        return
-
     changes = parsed.get("changes") or {}
     click.echo(edit_event(service, event["id"], changes))
 
@@ -79,13 +73,9 @@ def delete(text):
     events = _find_events(service, hint, now)
 
     if not events:
-        click.echo("No matching events found.")
-        return
+        raise click.ClickException("No matching events found.")
 
     event = _pick_event(events)
-    if event is None:
-        return
-
     click.echo(delete_event(service, event["id"]))
 
 
@@ -102,7 +92,7 @@ def test():
         click.echo("OK")
     except Exception as e:
         click.echo(f"FAIL ({e})")
-        return
+        raise SystemExit(1)
 
     click.echo("Google Calendar... ", nl=False)
     try:
@@ -117,7 +107,7 @@ def test():
         click.echo("OK")
     except Exception as e:
         click.echo(f"FAIL ({e})")
-        return
+        raise SystemExit(1)
 
     click.echo("All checks passed.")
 
@@ -142,14 +132,14 @@ def _find_events(service, hint: str, now: datetime) -> list:
     return search_events(service, hint, time_min, time_max)
 
 
-def _pick_event(events: list) -> dict | None:
+def _pick_event(events: list) -> dict:
     if len(events) == 1:
         event = events[0]
         summary = event.get("summary", "(no title)")
         start = event.get("start", {}).get("dateTime") or event.get("start", {}).get("date", "")
         click.echo(f"Found: {summary} — {start}")
         if not click.confirm("Confirm?", default=False):
-            return None
+            raise click.Abort()
         return event
 
     click.echo("Multiple events found:")
