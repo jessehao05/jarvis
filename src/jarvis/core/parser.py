@@ -1,12 +1,13 @@
 import json
 import os
 from datetime import datetime
+from pathlib import Path
 
 from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(Path.home() / ".jarvis" / ".env")
 
 _SYSTEM_PROMPT = """\
 You are a calendar assistant. Extract structured event data from natural language and return ONLY valid JSON — no explanation, no markdown, no code fences.

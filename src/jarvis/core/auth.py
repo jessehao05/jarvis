@@ -8,7 +8,7 @@ from googleapiclient.discovery import build
 
 SCOPES = ["https://www.googleapis.com/auth/calendar.events"]
 TOKEN_PATH = Path.home() / ".jarvis" / "token.json"
-CREDENTIALS_PATH = Path("credentials.json")
+CREDENTIALS_PATH = Path.home() / ".jarvis" / "credentials.json"
 
 
 def get_calendar_service():
@@ -29,8 +29,9 @@ def get_calendar_service():
         if not refreshed:
             if not CREDENTIALS_PATH.exists():
                 raise FileNotFoundError(
-                    "credentials.json not found. Download it from Google Cloud Console "
-                    "(APIs & Services → Credentials → OAuth 2.0 Client → Desktop app)."
+                    f"credentials.json not found at {CREDENTIALS_PATH}. Download it from "
+                    "Google Cloud Console (APIs & Services → Credentials → OAuth 2.0 "
+                    "Client → Desktop app) and save it there."
                 )
             flow = InstalledAppFlow.from_client_secrets_file(CREDENTIALS_PATH, SCOPES)
             creds = flow.run_local_server(port=0)
