@@ -8,11 +8,12 @@ A CLI tool for managing Google Calendar using natural language. Commands like `j
 jarvis/
 ├── src/
 │   └── jarvis/
-│       ├── cli.py          # Click commands (add, edit, delete, list, test)
+│       ├── cli.py          # Click commands (add, auth, delete, edit, help, list, test)
 │       └── core/
 │           ├── auth.py     # Google OAuth flow and service construction
 │           ├── calendar.py # Google Calendar API calls
 │           └── parser.py   # Gemini prompt and JSON parsing
+├── docs/                   # Planning and design notes
 ├── .env.example
 └── pyproject.toml
 ```
@@ -64,10 +65,12 @@ Only needed to work on jarvis in isolation — for example to try an unreleased 
 
 ```bash
 cd path/to/jarvis
-python -m venv .venv
+uv venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -e .
+uv pip install -e .
 ```
+
+Using `uv` here rather than `python -m venv` and `pip` keeps the development environment resolving the same way as the global one, so the two don't drift onto different dependency versions.
 
 **3. Get a Gemini API key**
 

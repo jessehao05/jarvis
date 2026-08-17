@@ -7,7 +7,7 @@ name = "jarvis"
 version = "0.1.0"
 requires-python = ">=3.10"
 dependencies = [
-    "google-genai>=1.0",
+    "google-genai>=2.18,<3",
     "google-api-python-client>=2.0",
     "google-auth-oauthlib>=1.0",
     "click>=8.0",
