@@ -58,7 +58,13 @@ def parse(text: str, now: datetime) -> dict:
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=f"{prompt}\n\nUser input: {text}",
-        config=types.GenerateContentConfig(temperature=0),
+        config=types.GenerateContentConfig(
+            temperature=0,
+            # AFC is a no-op. disable to skip its code path + warning.
+            automatic_function_calling=types.AutomaticFunctionCallingConfig(
+                disable=True
+            ),
+        ),
     )
 
     raw = response.text.strip()
