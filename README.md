@@ -1,6 +1,13 @@
+
+
+
+
 # jarvis
 
 A CLI tool for managing Google Calendar using natural language. Commands like `jarvis add "study session at 6pm tomorrow"` are parsed by an LLM into structured data and sent to the Google Calendar API.
+
+## Basic Demo
+https://github.com/user-attachments/assets/4630dfdb-f364-4b25-a249-ca89fd60381e
 
 ## Project structure
 
